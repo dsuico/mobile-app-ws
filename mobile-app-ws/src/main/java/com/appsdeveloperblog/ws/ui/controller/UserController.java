@@ -1,5 +1,8 @@
 package com.appsdeveloperblog.ws.ui.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.appsdeveloperblog.ws.exceptions.UserServiceException;
@@ -17,6 +21,9 @@ import com.appsdeveloperblog.ws.service.UserService;
 import com.appsdeveloperblog.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdeveloperblog.ws.ui.model.response.ErrorMessages;
+import com.appsdeveloperblog.ws.ui.model.response.OperationStatusModel;
+import com.appsdeveloperblog.ws.ui.model.response.RequestOperationName;
+import com.appsdeveloperblog.ws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.ws.ui.model.response.UserRest;
 
 @RestController
@@ -76,9 +83,33 @@ public class UserController {
 		return returnValue;
 	}
 	
-	@DeleteMapping
-	public String deleteUser()
+	@DeleteMapping(path="/{id}",
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+			)
+	public OperationStatusModel deleteUser(@PathVariable String id)
 	{
-		return "deleteUser";
+		userService.deleteUser(id);
+		OperationStatusModel returnValue = new OperationStatusModel();
+		returnValue.setOperationName(RequestOperationName.DELETE.name());
+		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		return returnValue;
+	}
+	
+	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
+	public List<UserRest> getUsers(
+			@RequestParam(value="page", defaultValue="0") int page,
+			@RequestParam(value="limit", defaultValue="20") int limit
+			)
+	{
+		List<UserRest> returnValue = new ArrayList<>();
+		List<UserDto> users = userService.getUsers(page, limit);
+		
+		for(UserDto userDto : users) {
+			UserRest userModel = new UserRest();
+			BeanUtils.copyProperties(userDto, userModel);
+			returnValue.add(userModel);
+		}
+		
+		return returnValue;
 	}
 }
