@@ -3,10 +3,13 @@ package com.appsdeveloperblog.ws.ui.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +50,7 @@ public class UserController {
 			)
 	public UserRest getUser(@PathVariable String id)
 	{
+
 		UserRest returnValue = new UserRest();
 		UserDto userDto = userService.getUserByUserId(id);
 		BeanUtils.copyProperties(userDto, returnValue);
@@ -138,10 +142,17 @@ public class UserController {
 	
 	@GetMapping(path="/{userId}/addresses/{addressId}",
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
-	public AddressesRest getUserAddress(@PathVariable String addressId)
+	public AddressesRest getUserAddress(@PathVariable String addressId, @PathVariable String userId)
 	{
 		AddressDto addressesDto = addressService.getAddress(addressId);
-		
-		return new ModelMapper().map(addressesDto, AddressesRest.class);
+
+		AddressesRest addressesRestModel = new ModelMapper().map(addressesDto, AddressesRest.class);
+		Link addressLink = linkTo(UserController.class).slash(userId).slash("addresses").slash(addressId).withSelfRel();
+		Link userLink = linkTo(UserController.class).slash(userId).slash("addresses").withRel("user");
+		Link addressesLink = linkTo(UserController.class).slash(userId).slash("addresses").withRel("addresses");
+		addressesRestModel.add(addressLink);
+		addressesRestModel.add(userLink);
+		addressesRestModel.add(addressesLink);
+		return addressesRestModel;
 	}
 }
