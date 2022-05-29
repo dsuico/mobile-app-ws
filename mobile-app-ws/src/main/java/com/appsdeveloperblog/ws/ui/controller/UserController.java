@@ -29,6 +29,7 @@ import com.appsdeveloperblog.ws.service.AddressService;
 import com.appsdeveloperblog.ws.service.UserService;
 import com.appsdeveloperblog.ws.shared.dto.AddressDto;
 import com.appsdeveloperblog.ws.shared.dto.UserDto;
+import com.appsdeveloperblog.ws.ui.model.request.PasswordResetModel;
 import com.appsdeveloperblog.ws.ui.model.request.PasswordResetRequestModel;
 import com.appsdeveloperblog.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdeveloperblog.ws.ui.model.response.AddressesRest;
@@ -182,7 +183,7 @@ public class UserController {
 		return returnValue;
 	}
 	
-	@PostMapping(path = "/reset-password",
+	@PostMapping(path = "/reset-password-request",
 			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
 			)
@@ -193,6 +194,25 @@ public class UserController {
 		boolean operationResult = userService.requestPasswordReset(passwordResetRequestModel.getEmail());
 		
 		returnValue.setOperationName(RequestOperationName.REQUEST_PASSWORD_RESET.name());
+		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
+		
+		if(operationResult)
+			returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		
+		return returnValue;
+	}
+	
+	@PostMapping(path = "/reset-password",
+			consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
+			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
+			)
+	public OperationStatusModel resetPassword(@RequestBody PasswordResetModel passwordResetModel) throws Exception
+	{
+		OperationStatusModel returnValue = new OperationStatusModel();
+		
+		boolean operationResult = userService.resetPassword(passwordResetModel.getToken(), passwordResetModel.getPassword());
+		
+		returnValue.setOperationName(RequestOperationName.PASSWORD_RESET.name());
 		returnValue.setOperationResult(RequestOperationStatus.ERROR.name());
 		
 		if(operationResult)

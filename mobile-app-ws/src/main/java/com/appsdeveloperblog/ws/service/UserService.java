@@ -23,4 +23,6 @@ public interface UserService extends UserDetailsService {
 	public boolean verifyEmailToken(String token);
 
 	public boolean requestPasswordReset(String email);
+
+	public boolean resetPassword(String token, String password);
 }
