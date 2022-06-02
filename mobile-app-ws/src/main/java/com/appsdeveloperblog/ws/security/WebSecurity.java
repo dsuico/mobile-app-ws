@@ -30,10 +30,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL).permitAll()
 			.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL).permitAll()
 			.antMatchers(HttpMethod.POST, SecurityConstants.RESET_PASSWORD_URL).permitAll()
+			.antMatchers(SecurityConstants.H2_CONSOLE).permitAll()
 			.anyRequest().authenticated().and()
 			.addFilter(getAuthenticationFilter())
 			.addFilter(new AuthorizationFilter(authenticationManager()))
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);//disable caching/cookies to always check for token
+		
+		//disable html iframe pop-ups - for h2 database
+		http.headers().frameOptions().disable();
 	}
 	
 	@Override
