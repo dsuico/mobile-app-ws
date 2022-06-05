@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto updateUser(String userId, UserDto user) {
 		
+		UserDto returnValue = new UserDto();
 		UserEntity userEntity = userRepository.findByUserId(userId);
 
 		if (userEntity == null)
@@ -92,9 +93,7 @@ public class UserServiceImpl implements UserService {
 		userEntity.setLastName(user.getLastName());
 		
 		UserEntity updatedUserDetails = userRepository.save(userEntity);
-		
-		UserDto returnValue = new UserDto();
-		BeanUtils.copyProperties(updatedUserDetails, returnValue);
+		returnValue = new ModelMapper().map(updatedUserDetails, UserDto.class);
 		
 		return returnValue;
 	}

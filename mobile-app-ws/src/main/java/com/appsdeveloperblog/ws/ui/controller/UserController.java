@@ -95,10 +95,10 @@ public class UserController {
 		if(userDetails.getFirstName().isEmpty()) throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		
 		UserDto userDto = new UserDto();
-		BeanUtils.copyProperties(userDetails, userDto);
+		userDto = new ModelMapper().map(userDetails,  UserDto.class);
 		
 		UserDto updatedUser = userService.updateUser(id, userDto);
-		BeanUtils.copyProperties(updatedUser, returnValue);
+		returnValue = new ModelMapper().map(updatedUser, UserRest.class);
 		
 		return returnValue;
 	}
