@@ -28,9 +28,94 @@ class UserRepositoryTest {
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	static boolean recordsCreated = false;
 
 	@BeforeEach
 	void setUp() throws Exception {
+		if(!recordsCreated) createRecords();
+	}
+
+	@Test
+	void testGetVerifiedUsers() {
+		Pageable pageableRequest = PageRequest.of(1,  1);
+		Page<UserEntity> page = userRepository.findAllUsersWithVerifiedEmailAddress(pageableRequest);
+		
+		assertNotNull(page);
+		
+		List<UserEntity> userEntities = page.getContent();
+		assertNotNull(userEntities);
+		assertTrue(userEntities.size() == 1);
+	}
+
+	@Test
+	final void testFindUserByFirstName() {
+		String firstName = "david";
+		List<UserEntity> users = userRepository.findUsersByFirstName(firstName);
+		
+		assertNotNull(users);
+		assertTrue(users.size() == 2);
+		
+		UserEntity user = users.get(0);
+		assertTrue(user.getFirstName().equals(firstName));
+	}
+	
+	@Test
+	final void testFindUserByLastName() {
+		String lastName = "suico";
+		List<UserEntity> users = userRepository.findUsersByLastName(lastName);
+		
+		assertNotNull(users);
+		assertTrue(users.size() == 2);
+		
+		UserEntity user = users.get(0);
+		assertTrue(user.getLastName().equals(lastName));
+	}
+	
+	@Test
+	final void testFindUsersByKeyword() {
+		String keyword = "avi";
+		List<UserEntity> users = userRepository.findUsersByKeyword(keyword);
+		
+		assertNotNull(users);
+		assertTrue(users.size() == 2);
+		
+		UserEntity user = users.get(0);
+		assertTrue(user.getLastName().contains(keyword) || user.getFirstName().contains(keyword));
+	}
+	
+	@Test
+	final void testFindUserFirstNameAndLastNameByKeyword() {
+		String keyword = "avi";
+		List<Object[]> users = userRepository.findUserFirstNameAndLastNameByKeyword(keyword);
+		
+		assertNotNull(users);
+		assertTrue(users.size() == 2);
+		
+		Object[] user = users.get(0);
+		
+		assertTrue(user.length == 2);
+		String userFirstName = String.valueOf(user[0]);
+		String userLastName = String.valueOf(user[1]);
+		
+		assertNotNull(userFirstName);
+		assertNotNull(userLastName);
+		
+		System.out.println("First name = " + userFirstName);
+		System.out.println("Last name = " + userLastName);
+	}
+	
+	@Test
+	final void testUpdateUserEmailVerificationStatus() {
+		boolean newEmailVerificationStatus = true;
+		userRepository.updateUserEmailVerificationStatus(newEmailVerificationStatus, "123123");
+		
+		UserEntity storedUser = userRepository.findByUserId("123123");
+		
+		assertTrue(storedUser.getEmailVerificationStatus() == newEmailVerificationStatus);
+	}
+	
+	private void createRecords() {
 		UserEntity userEntity1 = new UserEntity();
 		userEntity1.setUserId("123123");
 		userEntity1.setFirstName("david");
@@ -78,18 +163,7 @@ class UserRepositoryTest {
 		userEntity2.setAddresses(addresses2);
 		
 		userRepository.save(userEntity2);
-	}
-
-	@Test
-	void testGetVerifiedUsers() {
-		Pageable pageableRequest = PageRequest.of(1,  1);
-		Page<UserEntity> page = userRepository.findAllUsersWithVerifiedEmailAddress(pageableRequest);
 		
-		assertNotNull(page);
-		
-		List<UserEntity> userEntities = page.getContent();
-		assertNotNull(userEntities);
-		assertTrue(userEntities.size() == 1);
+		recordsCreated = true;
 	}
-
 }
