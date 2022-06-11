@@ -39,7 +39,30 @@ import com.appsdeveloperblog.ws.ui.model.response.OperationStatusModel;
 import com.appsdeveloperblog.ws.ui.model.response.RequestOperationName;
 import com.appsdeveloperblog.ws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.ws.ui.model.response.UserRest;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 
+
+@SecuritySchemes({
+    @SecurityScheme(
+            name = "basicAuth",
+            type = SecuritySchemeType.HTTP,
+            scheme = "basic"
+    ),
+    @SecurityScheme(
+            name = "bearerToken",
+            type = SecuritySchemeType.HTTP,
+            scheme = "bearer",
+            bearerFormat = "JWT"
+    )
+})
 @RestController
 @RequestMapping("/users")
 //@CrossOrigin(origins= {"http://localhost:8088","http://localhost:8089"})
@@ -51,6 +74,8 @@ public class UserController {
 	@Autowired
 	private AddressService addressService;
 
+	@Operation(summary = "The Get User Details Web Service Endpoint",
+			description="This Web Service endpoint retuns user details. User public user id in URL Path. For example: /users/uf3mr1mqzusy")
 	@GetMapping(
 			path="/{id}",
 			produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE }
@@ -117,6 +142,7 @@ public class UserController {
 		return returnValue;
 	}
 	
+	@SecurityRequirement(name = "bearerToken")
 	@GetMapping(produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public List<UserRest> getUsers(
 			@RequestParam(value="page", defaultValue="0") int page,

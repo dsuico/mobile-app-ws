@@ -27,7 +27,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 		this.userService = userService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 	}
-	
+
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
@@ -38,6 +38,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL).permitAll()
 			.antMatchers(HttpMethod.POST, SecurityConstants.RESET_PASSWORD_URL).permitAll()
 			.antMatchers(SecurityConstants.H2_CONSOLE).permitAll()
+			.antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
 			.anyRequest().authenticated().and()
 			.addFilter(getAuthenticationFilter())
 			.addFilter(new AuthorizationFilter(authenticationManager()))
